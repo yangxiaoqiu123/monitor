@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="css/index.css" />
+  <title>终端实时监控</title>
+</head>
+<body>
+  <div class="top-container">
+    <div class="tabs-container" id="tabsContainer">
+      <div class="tab active no-close" data-tab-id="home">首页</div>
+      <!-- 首页标签，初始为活跃状态，不可关闭 -->
+    </div>
+
+    <div class="buttons-container">
+      <button class="close-tab-button" id="closeTabButton">关闭标签</button>
+      <button class="exit-button" id="exitButton">退出浏览器</button>
+      <!-- 按钮容器 -->
+    </div>
+  </div>
+  <div class="tab-content active" id="homeContent">
+    <div style="display: flex;flex-direction: column;align-items: center;justify-content: space-around;">
+      <div>
+        <input type="text" placeholder="请输入屏幕名称" id="src-name" value="scr-0" style="margin-top:10px;
+        font-size: 14px;
+        border-width: 1px;
+        border-style: solid;
+        width: 315px;
+        height: 35px;
+        padding: 5px 25px;
+        border-radius: 5px;">
+
+
+      </div>
+      <div>
+        <input type="text" placeholder="请输入秘钥" id="src-token"
+          value="AZfnACQgMjUzMjJmNTYtZGE3Ny00YWZhLWFkMzgtN2RhZDliNTM5ODBiYjA0NjIyMzIwNjQ4NGE0MzkzMjY0YTkyYzYzZGU5NGI="
+          style="margin-top:10px;
+          font-size: 14px;
+          border-width: 1px;
+          border-style: solid;
+          width: 315px;
+          height: 35px;
+          padding: 5px 25px;
+          border-radius: 5px;">
+      </div>
+      <div>
+        <div class="view-button" id="addTabButton">查看</div>
+      </div>
+    </div>
+  </div>
+  <!-- 首页标签对应的内容，初始为活跃状态 -->
+  <script src="js/index.js"></script>
+</body>
+</html>
