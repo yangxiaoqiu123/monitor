@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="icon" href="assets/images/favicon.ico"/>
+    <title>首页</title>
+    <link rel="stylesheet" href="assets/libs/layui/css/layui.css"/>
+    <link rel="stylesheet" href="assets/module/admin.css?v=318"/>
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <style>
+        #queueTable + .layui-table-view .layui-table-tool-temp {
+            padding-right: 0;
+        }
+
+        #queueTable + .layui-table-view .layui-table-body tbody > tr td {
+            cursor: pointer;
+        }
+
+        #queueTable + .layui-table-view .layui-table-body tbody > tr.layui-table-click {
+            background-color: #fff3e0;
+        }
+
+        #queueTable + .layui-table-view .layui-table-body tbody > tr.layui-table-click td:last-child > div:before {
+            position: absolute;
+            right: 6px;
+            content: "\e602";
+            font-size: 12px;
+            font-style: normal;
+            font-family: layui-icon !important;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+    </style>
+</head>
+<body class="layui-layout-body">
+
+
+
+<!-- 正文开始 -->
+<div class="layui-fluid" style="padding-bottom: 0;">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md3">
+            <div class="layui-card">
+                <div class="layui-card-header">队列</div>
+                <div class="layui-card-body" style="padding: 10px;">
+                    <!-- 数据表格1 -->
+                    <table id="queueTable" lay-filter="queueTable"></table>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md9">
+            <div class="layui-card">
+                <div class="layui-card-header" style="display: flex;justify-content: space-between;align-items: center">任务<button type="button" class="layui-btn layui-btn-xs layui-btn-normal" id="logout">退出登录</button></div>
+                <div class="layui-card-body" style="padding: 10px;">
+                    <!-- 数据表格2 -->
+                    <table id="modelTable" lay-filter="modelTable"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 表单弹窗1 -->
+<script type="text/html" id="queueEditDialog">
+    <form id="queueEditForm" lay-filter="queueEditForm" class="layui-form model-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required">队列名称:</label>
+            <div class="layui-input-block">
+                <input name="queueName" placeholder="请输入队列名称" class="layui-input"
+                       lay-verType="tips" lay-verify="required" required/>
+            </div>
+        </div>
+        <div class="layui-form-item text-right">
+            <button class="layui-btn" lay-filter="queueEditSubmit" lay-submit>保存</button>
+            <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+        </div>
+    </form>
+</script>
+<!-- 表格操作列 -->
+<script type="text/html" id="modelTbBar">
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit">修改</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+<script type="text/html" id="queueTbBar">
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<!-- 表单弹窗 -->
+<script type="text/html" id="modelEditDialog">
+    <form id="modelEditForm" lay-filter="modelEditForm" class="layui-form model-form" style="padding-left: 10px;">
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required" style="padding-left: 0;width: 95px;">模型名称:</label>
+            <div class="layui-input-block">
+                <input name="modelName" placeholder="请输入模型名称" class="layui-input"
+                       lay-verType="tips" lay-verify="required" required/>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required" style="padding-left: 0;width: 95px;">语料名称:</label>
+            <div class="layui-input-block">
+                <input name="corpusName" placeholder="请输入语料名称" class="layui-input"
+                       lay-verType="tips" lay-verify="required" required/>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required">训练轮次:</label>
+            <div class="layui-input-block">
+                <input name="trainingCount" placeholder="请输入训练轮次" class="layui-input" type="number"
+                       lay-verType="tips" lay-verify="required" required/>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required" style="padding-left: 0;width: 95px;">任务名称:</label>
+            <div class="layui-input-block">
+                <input name="taskName" placeholder="请输入任务名称" class="layui-input"
+                       lay-verType="tips" lay-verify="required" required/>
+            </div>
+        </div>
+        <div class="layui-form-item text-right">
+            <button class="layui-btn" lay-filter="modelEditSubmit" lay-submit>保存</button>
+            <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+        </div>
+    </form>
+</script>
+
+<!-- js部分 -->
+<script type="text/javascript" src="assets/libs/layui/layui.js"></script>
+<script type="text/javascript" src="assets/js/main.js"></script>
+
+<!-- js部分 -->
+<script>
+    layui.use(['layer', 'form', 'table', 'util', 'admin', 'setter'], async function () {
+        var $ = layui.jquery;
+        var layer = layui.layer;
+        var form = layui.form;
+        var table = layui.table;
+        var util = layui.util;
+        var admin = layui.admin;
+        var setter = layui.setter;
+
+        $('#logout').click(() => {
+            layer.confirm('确定退出登录吗？', {
+                skin: 'layui-layer-admin',
+                shade: .1
+            }, function (i) {
+                layer.close(i);
+                layui.data(setter.tableName, { key: 'token', remove: true });
+                location.replace('login.html');
+            });
+        });
+
+        var queueData = await getQueue();
+
+        /* ************************************************队列表格************************************************ */
+        var insTbQueue = table.render({
+            elem: '#queueTable',
+            data: queueData,
+            height: 'full-240',
+            page: true,
+            limit: 20,
+            toolbar: ['<p>',
+                '<button lay-event="add" class="layui-btn layui-btn-sm icon-btn"><i class="layui-icon">&#xe654;</i>新增队列</button>&nbsp;',
+                '</p>'].join(''),
+            defaultToolbar: [],
+            cols: [[
+                {type: 'numbers'},
+                {field: 'queueName', title: '队列名称'},
+                {title: '操作', toolbar: '#queueTbBar', align: 'center', width: 120, minWidth: 120}
+            ]],
+            done: function (res, curr, count) {
+                setTimeout(() => {
+                    $('#queueTable+.layui-table-view .layui-table-body tbody>tr:first').trigger('click');
+                }, 10)
+            }
+        });
+
+        /* 监听队列表格行单击事件 */
+        table.on('row(queueTable)', function (obj) {
+            obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
+            const loadIndex = layer.load(2);
+            admin.req('LRANGE/' + obj.data.queueName + '/0/-1', {}, function (res) {
+                layer.close(loadIndex);
+                var modelData = [];
+                try {
+                    res.result.forEach(json => {
+                        const parsedData = JSON.parse(json);
+                        // 验证 JSON 数据是否符合特定格式
+                        if (
+                            parsedData &&
+                            parsedData.modelName &&
+                            parsedData.corpusName &&
+                            parsedData.trainingCount &&
+                            parsedData.taskName
+                        ) {
+                            modelData.push(parsedData);
+                        } else {
+                            layer.msg('数据格式不符合要求', {icon: 2});
+                        }
+                    });
+                } catch (error) {
+                    layer.msg('数据格式不符合要求', {icon: 2});
+                }
+                insTbModel.reload({data: modelData});
+            }, 'get');
+        });
+
+        /* 队列表格行工具条点击事件 */
+        table.on('tool(queueTable)', function (obj) {
+            if (obj.event === 'del') { // 删除
+                doDelQueue(obj);
+            }
+        });
+
+        /* 队列表格头工具栏点击事件 */
+        table.on('toolbar(queueTable)', function (obj) {
+            if (obj.event === 'add') { // 添加
+                showEditQueue();
+            }
+        });
+
+        /* 显示队列表单弹窗 */
+        function showEditQueue(mData, obj) {
+            admin.open({
+                type: 1,
+                title: (mData ? '修改' : '添加') + '队列',
+                content: $('#queueEditDialog').html(),
+                success: function (layero, dIndex) {
+                    // 回显表单数据
+                    form.val('queueEditForm', mData);
+                    // 表单提交事件
+                    form.on('submit(queueEditSubmit)', function (data) {
+                        const field = JSON.stringify({
+                            "modelName": "初始化模型",
+                            "corpusName": "初始化语料",
+                            "trainingCount": "0",
+                            "taskName": "初始化任务"
+                        });
+                        const queueName = data.field.queueName;
+                        const loadIndex = layer.load(2);
+                        const saveURL = 'RPUSH/taskman_' + queueName + '/' + field;
+                        admin.req(saveURL, {}, function (res) {
+                            layer.close(loadIndex);
+                            if (res.result !== undefined) {
+                                layer.close(dIndex);
+                                layer.msg('添加成功', {icon: 1});
+                                reloadQueueTable();
+                            } else {
+                                layer.msg('添加失败', {icon: 2});
+                            }
+                        }, 'post');
+                        return false;
+                    });
+                }
+            });
+        }
+
+        /* 删除队列 */
+        function doDelQueue(obj) {
+            layer.confirm('确定要删除选中队列吗？', {
+                skin: 'layui-layer-admin',
+                shade: .1
+            }, function (i) {
+                layer.close(i);
+                const queueName = obj.data.queueName;
+                var loadIndex = layer.load(2);
+                admin.req('DEL/' + queueName, {}, function (res) {
+                    layer.close(loadIndex);
+                    if (res.result !== undefined) {
+                        layer.msg('删除成功', {icon: 1});
+                        reloadQueueTable();
+                    } else {
+                        layer.msg('删除失败', {icon: 2});
+                    }
+                }, 'post');
+            });
+        }
+
+        /* 重载队列 */
+        async function reloadQueueTable() {
+            var queueData = [];
+
+            // 封装一个异步函数来获取数据
+            async function getKeys() {
+                return await new Promise((resolve) => {
+                    var loadIndex = layer.load(2);
+                    admin.req('keys/taskman_*', {}, async function (res) {
+                        layer.close(loadIndex);
+                        resolve(res.result);
+                    }, 'get');
+                });
+            }
+
+            let keys = await getKeys();
+            for (const key of keys) {
+                queueData.push({"queueName": key});
+            }
+            insTbQueue.reload({data: queueData});
+        }
+
+        async function getQueue() {
+            return await new Promise(async (resolve) => {
+                var queueData = [];
+
+                // 封装一个异步函数来获取数据
+                async function getKeys() {
+                    return await new Promise((resolve) => {
+                        var loadIndex = layer.load(2);
+                        admin.req('keys/taskman_*', {}, async function (res) {
+                            layer.close(loadIndex);
+                            resolve(res.result);
+                        }, 'get');
+                    });
+                }
+
+                let keys = await getKeys();
+                for (const key of keys) {
+                    queueData.push({"queueName": key});
+                }
+                resolve(queueData);
+            });
+        }
+
+        /* ************************************************模型表格************************************************ */
+        var insTbModel = table.render({
+            elem: '#modelTable',
+            data: [],
+            height: 'full-240',
+            page: true,
+            limit: 20,
+            toolbar: ['<p>',
+                '<button lay-event="add" class="layui-btn layui-btn-sm icon-btn"><i class="layui-icon">&#xe654;</i>新增模型</button>&nbsp;',
+                '</p>'].join(''),
+            cellMinWidth: 100,
+            cols: [[
+                {type: 'numbers'},
+                {field: 'modelName', title: '模型名称', align: 'center'},
+                {field: 'corpusName', title: '语料名称', align: 'center'},
+                {field: 'trainingCount', title: '训练轮次', sort: true, align: 'center'},
+                {field: 'taskName', title: '任务名称', align: 'center'},
+                {title: '操作', toolbar: '#modelTbBar', align: 'center', width: 120, minWidth: 120}
+            ]]
+        });
+
+        /* 模型表格行工具条点击事件 */
+        table.on('tool(modelTable)', function (obj) {
+            const rowIndex = obj.tr[0]['rowIndex'];
+            if (obj.event === 'edit') { // 修改
+                showEditModel(obj.data, rowIndex);
+            } else if (obj.event === 'del') { // 删除
+                doDelModel(obj);
+            }
+        });
+
+        /* 模型表格头工具栏点击事件 */
+        table.on('toolbar(modelTable)', function (obj) {
+            if (obj.event === 'add') { // 添加
+                showEditModel();
+            }
+        });
+
+        /* 重载模型 */
+        async function reloadModelTable(queueName) {
+            admin.req('LRANGE/' + queueName + '/0/-1', {}, function (res) {
+                var modelData = [];
+                try {
+                    res.result.forEach(json => {
+                        const parsedData = JSON.parse(json);
+                        // 验证 JSON 数据是否符合特定格式
+                        if (
+                            parsedData &&
+                            parsedData.modelName &&
+                            parsedData.corpusName &&
+                            parsedData.trainingCount &&
+                            parsedData.taskName
+                        ) {
+                            modelData.push(parsedData);
+                        } else {
+                            layer.msg('数据格式不符合要求', {icon: 2});
+                        }
+                    });
+                } catch (error) {
+                    layer.msg('数据格式不符合要求', {icon: 2});
+                }
+                insTbModel.reload({data: modelData});
+            });
+        }
+
+        /* 模型表单弹窗 */
+        function showEditModel(mData, rowIndex) {
+            admin.open({
+                type: 1,
+                title: (mData ? '修改' : '添加') + '模型',
+                content: $('#modelEditDialog').html(),
+                success: function (layero, dIndex) {
+                    // 回显表单数据
+                    form.val('modelEditForm', mData);
+                    // 表单提交事件
+                    form.on('submit(modelEditSubmit)', function (data) {
+                        const queueName = $('.layui-table-click')[0].children[1].textContent;
+                        const field = JSON.stringify(data.field);
+                        const loadIndex = layer.load(2);
+                        const saveURL = 'RPUSH/' + queueName + '/' + field;
+                        const updateURL = 'LSET/' + queueName + '/' + rowIndex + '/' + field;
+                        admin.req(mData ? updateURL : saveURL, {}, function (res) {
+                            layer.close(loadIndex);
+                            if (res.result !== undefined) {
+                                layer.close(dIndex);
+                                layer.msg(mData ? '修改成功' : '添加成功', {icon: 1});
+                                reloadModelTable(queueName);
+                            } else {
+                                layer.msg(mData ? '修改失败' : '添加失败', {icon: 2});
+                            }
+                        }, 'post');
+                        return false;
+                    });
+                }
+            });
+        }
+
+        /* 删除模型 */
+        function doDelModel(obj) {
+            layer.confirm('确定要删除选中的模型吗？', {
+                skin: 'layui-layer-admin',
+                shade: .1
+            }, function (i) {
+                layer.close(i);
+                const field = JSON.stringify(obj.data);
+                const queueName = $('.layui-table-click')[0].children[1].textContent;
+                var loadIndex = layer.load(2);
+                admin.req('LREM/' + queueName + '/0/' + field, {}, function (res) {
+                    layer.close(loadIndex);
+                    if (res.result !== undefined) {
+                        layer.msg('删除成功', {icon: 1});
+                        reloadModelTable(queueName);
+                    } else {
+                        layer.msg('删除失败', {icon: 2});
+                    }
+                }, 'get');
+            });
+        }
+
+    });
+</script>
+
+</body>
+</html>
